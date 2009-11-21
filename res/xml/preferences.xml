@@ -19,4 +19,8 @@
         android:summary="@string/summary_a2dpvolume_pref"
         android:dialogMessage="@string/dialog_msg_a2dpvolume_pref"
         android:dialogTitle="@string/dialog_title_a2dpvolume_pref" />
+    <CheckBoxPreference
+        android:key="@string/key_show_ui_flag"
+        android:title="@string/title_show_ui_flag"
+        android:summary="@string/summary_show_ui_flag" />
 </PreferenceScreen>

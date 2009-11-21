@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.hanhuy.android.a2dp.volume" android:versionCode="1"
-    android:versionName="0.1.0">
+    package="com.hanhuy.android.a2dp.volume" android:versionCode="1" android:versionName="1.0.0">
     <application android:icon="@drawable/icon" android:label="@string/app_name">
         <activity android:name=".A2DPVolumeSettings" android:label="@string/app_name">
             <intent-filter>
@@ -24,7 +23,8 @@
                 <action android:name="android.intent.action.USER_PRESENT" />
             </intent-filter>
         </receiver>
-    </application>
+    <service android:name=".HeadsetVolumeService"></service>
+</application>
     <uses-sdk android:minSdkVersion="3" android:targetSdkVersion="5" />
 
     <uses-permission android:name="android.permission.BLUETOOTH" />

@@ -11,7 +11,6 @@ import android.os.Handler;
 import android.preference.DialogPreference;
 import android.provider.Settings;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.SeekBar;
@@ -23,9 +22,11 @@ DialogInterface.OnKeyListener {
 
     final static String TAG = "A2DPVolumePreference";
     
-    private final static String HEADSET_KEY = "wiredvolume";
-    private final static String SPEAKER_KEY = "speakervolume";
-    private final static String A2DP_KEY    = "a2dpvolume";
+    public final static String HAS_HEADSET = "has_headset";
+
+    public final static String HEADSET_VOLUME_KEY = "wiredvolume";
+    public final static String SPEAKER_VOLUME_KEY = "speakervolume";
+    public final static String A2DP_VOLUME_KEY    = "a2dpvolume";
 
     @Override
     public void onStartTrackingTouch(SeekBar seekBar) {
@@ -49,14 +50,18 @@ DialogInterface.OnKeyListener {
     private SeekBar mSeekBar;
     
     private boolean isCurrentOutput() {
+        boolean hasHeadset = getSharedPreferences().getBoolean(
+                HAS_HEADSET, false);
         String key = getKey();
-        if (A2DP_KEY.equals(key) && mVolume.isBluetoothA2dpOn())
+        if (A2DP_VOLUME_KEY.equals(key) && mVolume.isBluetoothA2dpOn())
             return true;
-        // TODO fix, isWiredHeadsetOn is always false for headphones
-        if (HEADSET_KEY.equals(key) && mVolume.isWiredHeadsetOn())
+        if (HEADSET_VOLUME_KEY.equals(key) &&
+                hasHeadset &&
+                !mVolume.isBluetoothA2dpOn())
             return true;
-        if (SPEAKER_KEY.equals(key) && !mVolume.isBluetoothA2dpOn() &&
-                !mVolume.isWiredHeadsetOn())
+        if (SPEAKER_VOLUME_KEY.equals(key) &&
+                !mVolume.isBluetoothA2dpOn() &&
+                !hasHeadset)
             return true;
         return false;
     }
@@ -99,10 +104,11 @@ DialogInterface.OnKeyListener {
         int volume;
         switch (keyCode) {
         case KeyEvent.KEYCODE_VOLUME_DOWN:
-            volume = Math.max(0, mSeekBar.getProgress() - 1);
+            volume = Math.min(mVolume.getStreamMaxVolume(STREAM_MUSIC),
+                    mSeekBar.getProgress() - 1);
             break;
         case KeyEvent.KEYCODE_VOLUME_UP:
-            volume = Math.min(0, mSeekBar.getProgress() + 1);
+            volume = Math.max(0, mSeekBar.getProgress() + 1);
             break;
         default:
             return false;
@@ -123,6 +129,7 @@ DialogInterface.OnKeyListener {
         seekBar.setMax(mVolume.getStreamMaxVolume(STREAM_MUSIC));
         seekBar.requestFocus();
         mOriginalStreamVolume = getPersistedInt(-1);
+        mLastProgress = mOriginalStreamVolume;
         if (mOriginalStreamVolume == -1 || isCurrentOutput()) {
             mOriginalStreamVolume = mVolume.getStreamVolume(STREAM_MUSIC);
         }
@@ -144,7 +151,7 @@ DialogInterface.OnKeyListener {
     protected void onDialogClosed(boolean positiveResult) {
         super.onDialogClosed(positiveResult);
         
-        if (!positiveResult) {
+        if (!positiveResult && mOriginalStreamVolume != mLastProgress) {
             setVolume(mOriginalStreamVolume);
         } else {
             persistInt(mLastProgress);
@@ -167,7 +174,6 @@ DialogInterface.OnKeyListener {
         // Do the volume changing separately to give responsive UI
         mLastProgress = progress;
         mHandler.removeCallbacks(this);
-        Log.v(TAG, "isCurrentOutput: " + isCurrentOutput());
         if (isCurrentOutput())
             mHandler.post(this);
     }
@@ -178,6 +184,7 @@ DialogInterface.OnKeyListener {
     
     private void setVolume(int value) {
         if (isCurrentOutput())
-            mVolume.setStreamVolume(STREAM_MUSIC, value, 0);
+            mVolume.setStreamVolume(STREAM_MUSIC, value,
+                    AudioManager.FLAG_PLAY_SOUND);
     }
 }
