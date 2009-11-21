@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">A2DP Volume Manager</string>
+    
+    <string name="dialog_title_speakervolume_pref">Speaker volume</string>
+    <string name="dialog_msg_speakervolume_pref">Speaker media volume</string>
+    <string name="title_speakervolume_pref">Speaker volume</string>
+    <string name="summary_speakervolume_pref">
+        Set media volume for the external speaker</string>
+    <string name="dialog_title_wiredvolume_pref">Wired headset volume</string>
+    <string name="dialog_msg_wiredvolume_pref">Wired headset media volume</string>
+    <string name="title_wiredvolume_pref">Wired headset volume</string>
+    <string name="summary_wiredvolume_pref">
+        Set media volume when using a wired headset</string>
+    <string name="dialog_title_a2dpvolume_pref">Bluetooth A2DP volume</string>
+    <string name="dialog_msg_a2dpvolume_pref">Bluetooth A2DP media volume</string>
+    <string name="title_a2dpvolume_pref">Bluetooth A2DP volume</string>
+    <string name="summary_a2dpvolume_pref">
+        Set media volume for use with Bluetooth A2DP output</string>
+</resources>
