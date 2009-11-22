@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android">
+    <CheckBoxPreference
+        android:key="@string/key_unmute_speaker_flag"
+        android:title="@string/title_unmute_speaker_flag"
+        android:summary="@string/summary_unmute_speaker_flag"/>
     <com.hanhuy.android.a2dp.volume.VolumePreference
         android:key="speakervolume"
+        android:dependency="@string/key_unmute_speaker_flag"
         android:title="@string/title_speakervolume_pref"
         android:summary="@string/summary_speakervolume_pref"
         android:dialogMessage="@string/dialog_msg_speakervolume_pref"

@@ -2,6 +2,12 @@
 <resources>
     <string name="app_name">A2DP Volume Manager</string>
 
+    <string name="key_unmute_speaker_flag">mute_speaker_flag</string>
+    <string name="title_unmute_speaker_flag">Enable speaker setting</string>
+    <string name="summary_unmute_speaker_flag">
+        Do not mute the external speaker when
+        disconnecting other headsets</string>
+
     <string name="dialog_title_speakervolume_pref">Speaker volume</string>
     <string name="dialog_msg_speakervolume_pref">Speaker media volume</string>
     <string name="title_speakervolume_pref">Speaker volume</string>
@@ -24,5 +30,6 @@
     <string name="key_show_ui_flag">show_ui_flag</string>
     <string name="title_show_ui_flag">Show volume window</string>
     <string name="summary_show_ui_flag">
-        Display volume status when switching outputs</string>
+        Display volume status when switching outputs
+    </string>
 </resources>

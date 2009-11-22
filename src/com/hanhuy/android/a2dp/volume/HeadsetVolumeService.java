@@ -1,6 +1,7 @@
 package com.hanhuy.android.a2dp.volume;
 
 import java.lang.reflect.InvocationTargetException;
+
 import java.lang.reflect.Method;
 
 import android.app.Service;
@@ -66,7 +67,6 @@ public class HeadsetVolumeService extends Service {
                     r = (Boolean) isInitialStickyBroadcast.invoke(
                             this, (Object) null);
                 } catch (IllegalArgumentException e) {
-                    // TODO Auto-generated catch block
                     Log.e(TAG, "isInitialStickyBroadcast", e);
                 } catch (IllegalAccessException e) {
                     Log.e(TAG, "isInitialStickyBroadcast", e);
@@ -90,46 +90,40 @@ public class HeadsetVolumeService extends Service {
             AudioManager am = (AudioManager) context.getSystemService(
                     HeadsetVolumeService.AUDIO_SERVICE);
             int state   = intent.getIntExtra("state", -1);
-            switch (state) {
-            case STATE_HEADSET_NONE:
+            if (state == 0) {
                 // don't set volume, will screw up speaker and headset volumes
                 if (!alreadyHasHeadset)
-                    break;
+                    return;
                 editor.putBoolean(VolumePreference.HAS_HEADSET, false);
                 if (!am.isBluetoothA2dpOn()) {
                     int _volume = am.getStreamVolume(AudioManager.STREAM_MUSIC);
                     editor.putInt(VolumePreference.HEADSET_VOLUME_KEY, _volume);
                     int volume = prefs.getInt(
                             VolumePreference.SPEAKER_VOLUME_KEY, -1);
-                    if (volume == -1) {
-                        volume = _volume;
-                    } else {
+                    if (volume != -1) {
+                        if (!prefs.getBoolean(context.getString(
+                                R.string.key_unmute_speaker_flag), false)) {
+                            volume = 0;
+                        }
                         am.setStreamVolume(AudioManager.STREAM_MUSIC,
                                 volume, showUI ? AudioManager.FLAG_SHOW_UI : 0);
                     }
                 }
-                break;
-            case STATE_HEADSET_MIC:
-            case STATE_HEADSET_NO_MIC:
-                // don't re-set volume, will screw up speaker volume
+            }
+            if (state > 0) { // assume that anything >0 is a media headset (1.5)
                 if (alreadyHasHeadset)
-                    break;
+                    return;
                 editor.putBoolean(VolumePreference.HAS_HEADSET, true);
                 if (!am.isBluetoothA2dpOn()) {
                     int _volume = am.getStreamVolume(AudioManager.STREAM_MUSIC);
                     editor.putInt(VolumePreference.SPEAKER_VOLUME_KEY, _volume);
                     int volume = prefs.getInt(
                             VolumePreference.HEADSET_VOLUME_KEY, -1);
-                    if (volume == -1) {
-                        volume = _volume;
-                    } else {
+                    if (volume != -1) {
                         am.setStreamVolume(AudioManager.STREAM_MUSIC,
                                 volume, showUI ? AudioManager.FLAG_SHOW_UI : 0);
                     }
                 }
-                break;
-            default: // FM_HEADSET and FM_SPEAKER, ignore them
-                break;
             }
             editor.commit();
         }

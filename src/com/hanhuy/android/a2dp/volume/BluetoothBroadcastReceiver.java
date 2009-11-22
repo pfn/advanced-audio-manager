@@ -28,16 +28,16 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
         "android.bluetooth.a2dp.extra.PREVIOUS_SINK_STATE";
 
     private final static String PRE_2_0_EXTRA_STATE =
-            "android.bluetooth.a2dp.intent.SINK_STATE";
+        "android.bluetooth.a2dp.intent.SINK_STATE";
     private final static String PRE_2_0_EXTRA_PREVIOUS_STATE =
-            "android.bluetooth.a2dp.intent.SINK_PREVIOUS_STATE";
+        "android.bluetooth.a2dp.intent.SINK_PREVIOUS_STATE";
 
     @Override
     public void onReceive(Context c, Intent i) {
         SharedPreferences prefs =
             PreferenceManager.getDefaultSharedPreferences(c);
         SharedPreferences.Editor editor = prefs.edit();
-        
+
         boolean showUI = prefs.getBoolean(
                 c.getString(R.string.key_show_ui_flag), false);
         boolean hasHeadset = prefs.getBoolean(
@@ -58,35 +58,37 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
             state = extras.getInt(PRE_2_0_EXTRA_STATE);
             oldState = extras.getInt(PRE_2_0_EXTRA_PREVIOUS_STATE);
         }
-        if (state != oldState) {
-            switch (state) {
-            case STATE_CONNECTED:
-                if (oldState == STATE_PLAYING)
-                    break;
-                volume = prefs.getInt(VolumePreference.A2DP_VOLUME_KEY, -1);
-                _volume = am.getStreamVolume(AudioManager.STREAM_MUSIC);
-
-                editor.putInt(key, _volume);
-                editor.commit();
-
-                if (volume != -1) {
-                    am.setStreamVolume(AudioManager.STREAM_MUSIC,
-                            volume, showUI ? AudioManager.FLAG_SHOW_UI : 0);
-                }
+        switch (state) {
+        case STATE_CONNECTED:
+            if (oldState == STATE_PLAYING)
                 break;
-            case STATE_DISCONNECTED:
-                volume = prefs.getInt(key, -1);
-                _volume = am.getStreamVolume(AudioManager.STREAM_MUSIC);
-                
-                editor.putInt(VolumePreference.A2DP_VOLUME_KEY, _volume);
-                editor.commit();
+            volume = prefs.getInt(VolumePreference.A2DP_VOLUME_KEY, -1);
+            _volume = am.getStreamVolume(AudioManager.STREAM_MUSIC);
 
-                if (volume != -1) {
-                    am.setStreamVolume(AudioManager.STREAM_MUSIC,
-                            volume, showUI ? AudioManager.FLAG_SHOW_UI : 0);
-                }
-                break;
+            editor.putInt(key, _volume);
+            editor.commit();
+
+            if (volume != -1) {
+                am.setStreamVolume(AudioManager.STREAM_MUSIC,
+                        volume, showUI ? AudioManager.FLAG_SHOW_UI : 0);
             }
+            break;
+        case STATE_DISCONNECTED:
+            volume = prefs.getInt(key, -1);
+            _volume = am.getStreamVolume(AudioManager.STREAM_MUSIC);
+
+            editor.putInt(VolumePreference.A2DP_VOLUME_KEY, _volume);
+            editor.commit();
+
+            if (volume != -1) {
+                if (!hasHeadset && !prefs.getBoolean(c.getString(
+                        R.string.key_unmute_speaker_flag), false)) {
+                    volume = 0;
+                }
+                am.setStreamVolume(AudioManager.STREAM_MUSIC,
+                        volume, showUI ? AudioManager.FLAG_SHOW_UI : 0);
+            }
+            break;
         }
     }
 }
