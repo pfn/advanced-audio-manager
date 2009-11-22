@@ -129,10 +129,10 @@ DialogInterface.OnKeyListener {
         seekBar.setMax(mVolume.getStreamMaxVolume(STREAM_MUSIC));
         seekBar.requestFocus();
         mOriginalStreamVolume = getPersistedInt(-1);
-        mLastProgress = mOriginalStreamVolume;
         if (mOriginalStreamVolume == -1 || isCurrentOutput()) {
             mOriginalStreamVolume = mVolume.getStreamVolume(STREAM_MUSIC);
         }
+        mLastProgress = mOriginalStreamVolume;
         seekBar.setProgress(mOriginalStreamVolume);
         seekBar.setOnSeekBarChangeListener(this);
         
