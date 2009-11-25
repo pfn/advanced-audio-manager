@@ -32,4 +32,9 @@
     <string name="summary_show_ui_flag">
         Display volume status when switching outputs
     </string>
+    <string name="key_silence_ringer_flag">silence_ringer_flag</string>
+    <string name="title_silence_ringer_flag">Silence ringer</string>
+    <string name="summary_silence_ringer_flag">
+        Set the ringer to silent when a Bluetooth headset is connected
+    </string>
 </resources>

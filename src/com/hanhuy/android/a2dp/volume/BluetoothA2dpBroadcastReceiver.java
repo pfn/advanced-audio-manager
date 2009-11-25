@@ -9,13 +9,13 @@ import android.media.AudioManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 
-public class BluetoothBroadcastReceiver extends BroadcastReceiver {
+public class BluetoothA2dpBroadcastReceiver extends BroadcastReceiver {
     final static String ACTION_A2DP_STATE_CHANGED =
         "android.bluetooth.a2dp.action.SINK_STATE_CHANGED";
     final static String PRE_2_0_ACTION_A2DP_STATE_CHANGED =
         "android.bluetooth.a2dp.intent.action.SINK_STATE_CHANGED";
 
-    final static String TAG = "A2DPVolumeSettingsBroadcastReceiver";
+    final static String TAG = "BluetoothA2dpBroadcastReceiver";
 
     // from android/bluetooth/BluetoothA2dp.java
     private final static int STATE_CONNECTED = 2;

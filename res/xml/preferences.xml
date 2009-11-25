@@ -28,4 +28,8 @@
         android:key="@string/key_show_ui_flag"
         android:title="@string/title_show_ui_flag"
         android:summary="@string/summary_show_ui_flag" />
+    <CheckBoxPreference
+        android:key="@string/key_silence_ringer_flag"
+        android:title="@string/title_silence_ringer_flag"
+        android:summary="@string/summary_silence_ringer_flag" />
 </PreferenceScreen>
