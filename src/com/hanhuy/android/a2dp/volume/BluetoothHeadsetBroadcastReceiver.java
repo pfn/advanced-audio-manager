@@ -20,6 +20,7 @@ public class BluetoothHeadsetBroadcastReceiver extends BroadcastReceiver {
  
     // from android/bluetooth/BluetoothHeadset.java
     private final static int STATE_CONNECTED = 2;
+    private final static int STATE_CONNECTING = 1;
     private final static int STATE_DISCONNECTED = 0;
 
     final static String EXTRA_STATE =
@@ -48,12 +49,14 @@ public class BluetoothHeadsetBroadcastReceiver extends BroadcastReceiver {
         AudioManager am = (AudioManager) c.getSystemService(
                 Context.AUDIO_SERVICE);
         Bundle extras = i.getExtras();
-        int state;
+        int state, oldState;
         int _volume, volume;
         if (extras.keySet().contains(EXTRA_STATE)) {
             state = extras.getInt(EXTRA_STATE);
+            oldState = extras.getInt(EXTRA_PREVIOUS_STATE);
         } else {
             state = extras.getInt(PRE_2_0_EXTRA_STATE);
+            oldState = extras.getInt(PRE_2_0_EXTRA_PREVIOUS_STATE);
         }
         switch (state) {
         case STATE_CONNECTED:
@@ -65,6 +68,8 @@ public class BluetoothHeadsetBroadcastReceiver extends BroadcastReceiver {
                     0, showUI ? AudioManager.FLAG_SHOW_UI : 0);
             break;
         case STATE_DISCONNECTED:
+            if (oldState == STATE_CONNECTING) // failed connection, don't flip
+                break;
             volume = prefs.getInt(RINGER_VOLUME_KEY, -1);
 
             if (volume != -1) {
