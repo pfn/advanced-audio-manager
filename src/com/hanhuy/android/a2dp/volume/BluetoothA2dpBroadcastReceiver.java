@@ -1,7 +1,6 @@
 package com.hanhuy.android.a2dp.volume;
 
 import android.content.BroadcastReceiver;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -19,6 +18,7 @@ public class BluetoothA2dpBroadcastReceiver extends BroadcastReceiver {
 
     // from android/bluetooth/BluetoothA2dp.java
     private final static int STATE_CONNECTED = 2;
+    private final static int STATE_CONNECTING = 1;
     private final static int STATE_DISCONNECTED = 0;
     private final static int STATE_PLAYING = 4;
 
@@ -74,6 +74,8 @@ public class BluetoothA2dpBroadcastReceiver extends BroadcastReceiver {
             }
             break;
         case STATE_DISCONNECTED:
+            if (oldState == STATE_CONNECTING) // a failed connection
+                break;
             volume = prefs.getInt(key, -1);
             _volume = am.getStreamVolume(AudioManager.STREAM_MUSIC);
 
