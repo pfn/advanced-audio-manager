@@ -38,19 +38,9 @@ public class BluetoothA2dpBroadcastReceiver extends BroadcastReceiver {
             PreferenceManager.getDefaultSharedPreferences(c);
         SharedPreferences.Editor editor = prefs.edit();
 
-        boolean showUI = prefs.getBoolean(
-                c.getString(R.string.key_show_ui_flag), false);
-        boolean hasHeadset = prefs.getBoolean(
-                VolumePreference.HAS_HEADSET, false);
-        String key = hasHeadset ? VolumePreference.HEADSET_VOLUME_KEY :
-            VolumePreference.SPEAKER_VOLUME_KEY;
-
-        AudioManager am = (AudioManager) c.getSystemService(
-                Context.AUDIO_SERVICE);
         Bundle extras = i.getExtras();
         int state;
         int oldState;
-        int _volume, volume;
         if (extras.keySet().contains(EXTRA_STATE)) {
             state = extras.getInt(EXTRA_STATE);
             oldState = extras.getInt(EXTRA_PREVIOUS_STATE);
@@ -62,7 +52,31 @@ public class BluetoothA2dpBroadcastReceiver extends BroadcastReceiver {
         case STATE_CONNECTED:
             if (oldState == STATE_PLAYING)
                 break;
-            volume = prefs.getInt(VolumePreference.A2DP_VOLUME_KEY, -1);
+            toggleMediaVolume(true, c, prefs, editor);
+            break;
+        case STATE_DISCONNECTED:
+            if (oldState == STATE_CONNECTING) // a failed connection
+                break;
+            toggleMediaVolume(false, c, prefs, editor);
+            break;
+        }
+    }
+
+    private static void toggleMediaVolume(boolean on, Context c,
+            SharedPreferences prefs, SharedPreferences.Editor editor) {
+        boolean hasHeadset = prefs.getBoolean(
+                c.getString(R.string.pref_has_headset), false);
+        String key = hasHeadset ? c.getString(R.string.pref_media_wired) :
+            c.getString(R.string.pref_media_speaker);
+        AudioManager am = (AudioManager) c.getSystemService(
+                Context.AUDIO_SERVICE);
+        boolean showUI = prefs.getBoolean(
+                c.getString(R.string.key_show_ui_flag), false);
+
+        int volume, _volume;
+        if (on) {
+            volume = prefs.getInt(
+                    c.getString(R.string.pref_media_bluetooth), -1);
             _volume = am.getStreamVolume(AudioManager.STREAM_MUSIC);
 
             editor.putInt(key, _volume);
@@ -72,25 +86,22 @@ public class BluetoothA2dpBroadcastReceiver extends BroadcastReceiver {
                 am.setStreamVolume(AudioManager.STREAM_MUSIC,
                         volume, showUI ? AudioManager.FLAG_SHOW_UI : 0);
             }
-            break;
-        case STATE_DISCONNECTED:
-            if (oldState == STATE_CONNECTING) // a failed connection
-                break;
+        } else {
             volume = prefs.getInt(key, -1);
             _volume = am.getStreamVolume(AudioManager.STREAM_MUSIC);
 
-            editor.putInt(VolumePreference.A2DP_VOLUME_KEY, _volume);
+            editor.putInt(c.getString(R.string.pref_media_bluetooth), _volume);
             editor.commit();
 
+            if (!hasHeadset && !prefs.getBoolean(c.getString(
+                    R.string.key_unmute_speaker_flag), false)) {
+                volume = 0;
+            }
             if (volume != -1) {
-                if (!hasHeadset && !prefs.getBoolean(c.getString(
-                        R.string.key_unmute_speaker_flag), false)) {
-                    volume = 0;
-                }
                 am.setStreamVolume(AudioManager.STREAM_MUSIC,
                         volume, showUI ? AudioManager.FLAG_SHOW_UI : 0);
             }
-            break;
+
         }
     }
 }

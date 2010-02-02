@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <declare-styleable name="VolumePreference">
+    <attr name="stream">
+      <enum name="music"        value="0"/>
+      <enum name="ringer"       value="1"/>
+      <enum name="call"         value="2"/>
+      <enum name="notification" value="3"/>
+    </attr>
+    <attr name="type">
+      <enum name="normal"     value="0"/>
+      <enum name="wired"      value="1"/>
+      <enum name="bluetooth"  value="2"/>
+    </attr>
+  </declare-styleable>
+</resources>

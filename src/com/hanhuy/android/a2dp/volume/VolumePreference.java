@@ -1,9 +1,14 @@
 package com.hanhuy.android.a2dp.volume;
 
 import static android.media.AudioManager.STREAM_MUSIC;
+import static android.media.AudioManager.STREAM_RING;
+import static android.media.AudioManager.STREAM_VOICE_CALL;
+import static android.media.AudioManager.STREAM_NOTIFICATION;
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.TypedArray;
 import android.database.ContentObserver;
 import android.media.AudioManager;
 import android.os.Bundle;
@@ -22,11 +27,12 @@ DialogInterface.OnKeyListener {
 
     final static String TAG = "A2DPVolumePreference";
     
-    public final static String HAS_HEADSET = "has_headset";
-
-    public final static String HEADSET_VOLUME_KEY = "wiredvolume";
-    public final static String SPEAKER_VOLUME_KEY = "speakervolume";
-    public final static String A2DP_VOLUME_KEY    = "a2dpvolume";
+    private final static int VOLUME_TYPE_NORMAL    = 0;
+    private final static int VOLUME_TYPE_WIRED     = 1;
+    private final static int VOLUME_TYPE_BLUETOOTH = 2;
+    
+    private int streamType;
+    private int volumeType;
 
     @Override
     public void onStartTrackingTouch(SeekBar seekBar) {
@@ -51,18 +57,38 @@ DialogInterface.OnKeyListener {
     
     private boolean isCurrentOutput() {
         boolean hasHeadset = getSharedPreferences().getBoolean(
-                HAS_HEADSET, false);
-        String key = getKey();
-        if (A2DP_VOLUME_KEY.equals(key) && mVolume.isBluetoothA2dpOn())
-            return true;
-        if (HEADSET_VOLUME_KEY.equals(key) &&
-                hasHeadset &&
-                !mVolume.isBluetoothA2dpOn())
-            return true;
-        if (SPEAKER_VOLUME_KEY.equals(key) &&
-                !mVolume.isBluetoothA2dpOn() &&
-                !hasHeadset)
-            return true;
+                getContext().getString(R.string.pref_has_headset), false);
+        boolean hasBtHeadset = getSharedPreferences().getBoolean(
+                getContext().getString(R.string.pref_has_bt_headset), false);
+
+        switch (streamType) {
+        case STREAM_MUSIC:
+            if (volumeType == VOLUME_TYPE_BLUETOOTH
+                    && mVolume.isBluetoothA2dpOn())
+                return true;
+            if (volumeType == VOLUME_TYPE_WIRED && hasHeadset &&
+                    !mVolume.isBluetoothA2dpOn())
+                return true;
+            if (volumeType == VOLUME_TYPE_NORMAL &&
+                    !mVolume.isBluetoothA2dpOn() &&
+                    !hasHeadset)
+                return true;
+            break;
+        case STREAM_VOICE_CALL:
+            if (volumeType == VOLUME_TYPE_BLUETOOTH && hasBtHeadset)
+                return true;
+            if (volumeType == VOLUME_TYPE_WIRED && hasHeadset && !hasBtHeadset)
+                return true;
+            if (volumeType == VOLUME_TYPE_NORMAL && !hasHeadset &&
+                    !hasBtHeadset)
+                return true;
+        case STREAM_RING:
+            if (volumeType == VOLUME_TYPE_WIRED && hasHeadset && !hasBtHeadset)
+                return true;
+            if (volumeType == VOLUME_TYPE_NORMAL && !hasHeadset &&
+                    !hasBtHeadset)
+                return true;
+        }
         return false;
     }
     private ContentObserver mVolumeObserver = new ContentObserver(mHandler) {
@@ -72,13 +98,26 @@ DialogInterface.OnKeyListener {
 
             if (mSeekBar != null && isCurrentOutput()) {
                 mSeekBar.setProgress(Settings.System.getInt(mContentResolver,
-                        Settings.System.VOLUME_SETTINGS[STREAM_MUSIC], 0));
+                        Settings.System.VOLUME_SETTINGS[streamType], 0));
             }
         }
     };
     
     public VolumePreference(Context context, AttributeSet attrs) {
         super(context, attrs);
+        
+        TypedArray a = context.obtainStyledAttributes(attrs,
+                R.styleable.VolumePreference);
+        int stream = a.getInt(R.styleable.VolumePreference_stream, 0);
+        volumeType = a.getInt(R.styleable.VolumePreference_type, 0);
+        a.recycle();
+        switch (stream) {
+        case 0:  streamType = STREAM_MUSIC;        break;
+        case 1:  streamType = STREAM_RING;         break;
+        case 2:  streamType = STREAM_VOICE_CALL;   break;
+        case 3:  streamType = STREAM_NOTIFICATION; break;
+        default: streamType = STREAM_MUSIC;
+        }
         
         setPersistent(true);
         
@@ -104,7 +143,7 @@ DialogInterface.OnKeyListener {
         int volume;
         switch (keyCode) {
         case KeyEvent.KEYCODE_VOLUME_DOWN:
-            volume = Math.min(mVolume.getStreamMaxVolume(STREAM_MUSIC),
+            volume = Math.min(mVolume.getStreamMaxVolume(streamType),
                     mSeekBar.getProgress() - 1);
             break;
         case KeyEvent.KEYCODE_VOLUME_UP:
@@ -126,11 +165,11 @@ DialogInterface.OnKeyListener {
     
         final SeekBar seekBar = mSeekBar =
                 (SeekBar) view.findViewById(R.id.volume_seekbar);
-        seekBar.setMax(mVolume.getStreamMaxVolume(STREAM_MUSIC));
+        seekBar.setMax(mVolume.getStreamMaxVolume(streamType));
         seekBar.requestFocus();
         mOriginalStreamVolume = getPersistedInt(-1);
         if (mOriginalStreamVolume == -1 || isCurrentOutput()) {
-            mOriginalStreamVolume = mVolume.getStreamVolume(STREAM_MUSIC);
+            mOriginalStreamVolume = mVolume.getStreamVolume(streamType);
         }
         mLastProgress = mOriginalStreamVolume;
         seekBar.setProgress(mOriginalStreamVolume);
@@ -143,7 +182,7 @@ DialogInterface.OnKeyListener {
         }
         
         mContentResolver.registerContentObserver(Settings.System.getUriFor(
-                Settings.System.VOLUME_SETTINGS[STREAM_MUSIC]),
+                Settings.System.VOLUME_SETTINGS[streamType]),
                 false, mVolumeObserver);
     }
 
@@ -184,7 +223,7 @@ DialogInterface.OnKeyListener {
     
     private void setVolume(int value) {
         if (isCurrentOutput())
-            mVolume.setStreamVolume(STREAM_MUSIC, value,
+            mVolume.setStreamVolume(streamType, value,
                     AudioManager.FLAG_PLAY_SOUND);
     }
 }

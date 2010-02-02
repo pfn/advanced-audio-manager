@@ -1,35 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen
-    xmlns:android="http://schemas.android.com/apk/res/android">
-    <CheckBoxPreference
-        android:key="@string/key_unmute_speaker_flag"
-        android:title="@string/title_unmute_speaker_flag"
-        android:summary="@string/summary_unmute_speaker_flag"/>
-    <com.hanhuy.android.a2dp.volume.VolumePreference
-        android:key="speakervolume"
-        android:dependency="@string/key_unmute_speaker_flag"
-        android:title="@string/title_speakervolume_pref"
-        android:summary="@string/summary_speakervolume_pref"
-        android:dialogMessage="@string/dialog_msg_speakervolume_pref"
-        android:dialogTitle="@string/dialog_title_speakervolume_pref" />
-    <com.hanhuy.android.a2dp.volume.VolumePreference
-        android:key="wiredvolume"
-        android:title="@string/title_wiredvolume_pref"
-        android:summary="@string/summary_wiredvolume_pref"
-        android:dialogMessage="@string/dialog_msg_wiredvolume_pref"
-        android:dialogTitle="@string/dialog_title_wiredvolume_pref" />
-    <com.hanhuy.android.a2dp.volume.VolumePreference
-        android:key="a2dpvolume"
-        android:title="@string/title_a2dpvolume_pref"
-        android:summary="@string/summary_a2dpvolume_pref"
-        android:dialogMessage="@string/dialog_msg_a2dpvolume_pref"
-        android:dialogTitle="@string/dialog_title_a2dpvolume_pref" />
-    <CheckBoxPreference
-        android:key="@string/key_show_ui_flag"
-        android:title="@string/title_show_ui_flag"
-        android:summary="@string/summary_show_ui_flag" />
-    <CheckBoxPreference
-        android:key="@string/key_silence_ringer_flag"
-        android:title="@string/title_silence_ringer_flag"
-        android:summary="@string/summary_silence_ringer_flag" />
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:a2dp="http://schemas.android.com/apk/res/com.hanhuy.android.a2dp.volume">
+    <CheckBoxPreference android:key="@string/key_show_ui_flag"
+        android:title="@string/title_show_ui_flag" android:summary="@string/summary_show_ui_flag" />
+    <CheckBoxPreference android:key="@string/key_enable_headset_service_flag"
+        android:defaultValue="true"
+        android:title="@string/title_enable_headset_service_flag"
+        android:summary="@string/summary_enable_headset_service_flag" />
+    <PreferenceCategory android:title="@string/media_title">
+        <CheckBoxPreference android:key="@string/key_unmute_speaker_flag"
+            android:title="@string/title_unmute_speaker_flag"
+            android:summary="@string/summary_unmute_speaker_flag" />
+        <com.hanhuy.android.a2dp.volume.VolumePreference
+            android:key="@string/pref_media_speaker" android:dependency="@string/key_unmute_speaker_flag"
+            a2dp:stream="music" a2dp:type="normal"
+            android:title="@string/title_speakervolume_pref"
+            android:summary="@string/summary_speakervolume_pref"
+            android:dialogMessage="@string/dialog_msg_speakervolume_pref"
+            android:dialogTitle="@string/dialog_title_speakervolume_pref" />
+        <com.hanhuy.android.a2dp.volume.VolumePreference
+            android:key="@string/pref_media_wired" android:title="@string/title_wiredvolume_pref"
+            a2dp:stream="music" a2dp:type="wired"
+            android:dependency="@string/key_enable_headset_service_flag"
+            android:summary="@string/summary_wiredvolume_pref"
+            android:dialogMessage="@string/dialog_msg_wiredvolume_pref"
+            android:dialogTitle="@string/dialog_title_wiredvolume_pref" />
+        <com.hanhuy.android.a2dp.volume.VolumePreference
+            android:key="@string/pref_media_bluetooth" android:title="@string/title_a2dpvolume_pref"
+            a2dp:stream="music" a2dp:type="bluetooth"
+            android:summary="@string/summary_a2dpvolume_pref"
+            android:dialogMessage="@string/dialog_msg_a2dpvolume_pref"
+            android:dialogTitle="@string/dialog_title_a2dpvolume_pref" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/in_call_title">
+        <com.hanhuy.android.a2dp.volume.VolumePreference
+            android:key="@string/pref_call_normal" android:title="@string/title_normalcallvolume_pref"
+            a2dp:stream="call" a2dp:type="normal"
+            android:summary="@string/summary_normalcallvolume_pref"
+            android:dialogMessage="@string/dialog_msg_normalcallvolume_pref"
+            android:dialogTitle="@string/dialog_title_normalcallvolume_pref" />
+        <com.hanhuy.android.a2dp.volume.VolumePreference
+            android:key="@string/pref_call_wired" android:title="@string/title_wiredcallvolume_pref"
+            a2dp:stream="call" a2dp:type="wired"
+            android:dependency="@string/key_enable_headset_service_flag"
+            android:summary="@string/summary_wiredcallvolume_pref"
+            android:dialogMessage="@string/dialog_msg_wiredcallvolume_pref"
+            android:dialogTitle="@string/dialog_title_wiredcallvolume_pref" />
+        <com.hanhuy.android.a2dp.volume.VolumePreference
+            android:key="@string/pref_call_bluetooth" android:title="@string/title_btcallvolume_pref"
+            a2dp:stream="call" a2dp:type="bluetooth"
+            android:summary="@string/summary_btcallvolume_pref"
+            android:dialogMessage="@string/dialog_msg_btcallvolume_pref"
+            android:dialogTitle="@string/dialog_title_btcallvolume_pref" />
+    </PreferenceCategory>
+    
+    <PreferenceCategory android:title="@string/ringer_title">
+        <CheckBoxPreference android:key="@string/key_silence_ringer_flag"
+            android:title="@string/title_silence_ringer_flag"
+            android:summary="@string/summary_silence_ringer_flag" />
+        <com.hanhuy.android.a2dp.volume.VolumePreference
+            android:key="@string/pref_ringer_normal" android:title="@string/title_normalringervolume_pref"
+            a2dp:stream="ringer" a2dp:type="normal"
+            android:summary="@string/summary_normalringervolume_pref"
+            android:dialogMessage="@string/dialog_msg_normalringervolume_pref"
+            android:dialogTitle="@string/dialog_title_normalringervolume_pref" />
+        <com.hanhuy.android.a2dp.volume.VolumePreference
+            android:key="@string/pref_ringer_wired" android:title="@string/title_wiredringervolume_pref"
+            a2dp:stream="ringer" a2dp:type="wired"
+            android:dependency="@string/key_enable_headset_service_flag"
+            android:summary="@string/summary_wiredringervolume_pref"
+            android:dialogMessage="@string/dialog_msg_wiredringervolume_pref"
+            android:dialogTitle="@string/dialog_title_wiredringervolume_pref" />
+    </PreferenceCategory>
+    <!--
+    <PreferenceCategory android:title="@string/notif_title">
+        <com.hanhuy.android.a2dp.volume.VolumePreference
+            android:key="normalnotifvolume" android:title="@string/title_normalnotifvolume_pref"
+            a2dp:stream="notification" a2dp:type="normal"
+            android:summary="@string/summary_normalnotifvolume_pref"
+            android:dialogMessage="@string/dialog_msg_normalnotifvolume_pref"
+            android:dialogTitle="@string/dialog_title_normalnotifvolume_pref" />
+        <com.hanhuy.android.a2dp.volume.VolumePreference
+            android:key="wirednotifvolume" android:title="@string/title_wirednotifvolume_pref"
+            a2dp:stream="notification" a2dp:type="wired"
+            android:dependency="@string/key_enable_headset_service_flag"
+            android:summary="@string/summary_wirednotifvolume_pref"
+            android:dialogMessage="@string/dialog_msg_wirednotifvolume_pref"
+            android:dialogTitle="@string/dialog_title_wirednotifvolume_pref" />
+        <com.hanhuy.android.a2dp.volume.VolumePreference
+            android:key="btnotifvolume" android:title="@string/title_btnotifvolume_pref"
+            a2dp:stream="notification" a2dp:type="bluetooth"
+            android:summary="@string/summary_btnotifvolume_pref"
+            android:dialogMessage="@string/dialog_msg_btnotifvolume_pref"
+            android:dialogTitle="@string/dialog_title_btnotifvolume_pref" />
+    </PreferenceCategory>
+    -->
 </PreferenceScreen>

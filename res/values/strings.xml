@@ -5,8 +5,8 @@
     <string name="key_unmute_speaker_flag">mute_speaker_flag</string>
     <string name="title_unmute_speaker_flag">Enable speaker setting</string>
     <string name="summary_unmute_speaker_flag">
-        Do not mute the external speaker when
-        disconnecting other headsets</string>
+        Do not mute the external speaker when disconnecting other headsets
+    </string>
 
     <string name="dialog_title_speakervolume_pref">Speaker volume</string>
     <string name="dialog_msg_speakervolume_pref">Speaker media volume</string>
@@ -16,25 +16,103 @@
     </string>
     <string name="dialog_title_wiredvolume_pref">Wired headset volume</string>
     <string name="dialog_msg_wiredvolume_pref">Wired headset media volume</string>
-    <string name="title_wiredvolume_pref">Wired headset volume</string>
+    <string name="title_wiredvolume_pref">Wired media volume</string>
     <string name="summary_wiredvolume_pref">
         Set media volume when using a wired headset
     </string>
     <string name="dialog_title_a2dpvolume_pref">Bluetooth A2DP volume</string>
     <string name="dialog_msg_a2dpvolume_pref">Bluetooth A2DP media volume</string>
-    <string name="title_a2dpvolume_pref">Bluetooth A2DP volume</string>
+    <string name="title_a2dpvolume_pref">Bluetooth media volume</string>
     <string name="summary_a2dpvolume_pref">
-        Set media volume for use with Bluetooth A2DP
-        output
+        Set media volume for use with Bluetooth A2DP output
     </string>
     <string name="key_show_ui_flag">show_ui_flag</string>
     <string name="title_show_ui_flag">Show volume window</string>
     <string name="summary_show_ui_flag">
         Display volume status when switching outputs
     </string>
+
+    <string name="key_enable_headset_service_flag">enable_headset_service_flag</string>
+    <string name="title_enable_headset_service_flag">Enable wired headset service</string>
+    <string name="summary_enable_headset_service_flag">
+        Enable switching volume profiles when using a wired headset (3.5mm)
+    </string>
+
     <string name="key_silence_ringer_flag">silence_ringer_flag</string>
     <string name="title_silence_ringer_flag">Silence ringer</string>
     <string name="summary_silence_ringer_flag">
         Set the ringer to silent when a Bluetooth headset is connected
+    </string>
+    <string name="dialog_title_normalringervolume_pref">Normal ringer volume</string>
+    <string name="dialog_msg_normalringervolume_pref">Normal ringer volume</string>
+    <string name="title_normalringervolume_pref">Normal ringer volume</string>
+    <string name="summary_normalringervolume_pref">
+        Ringer volume when other options do not apply
+    </string>
+    <string name="dialog_title_wiredringervolume_pref">Wired headset ringer volume</string>
+    <string name="dialog_msg_wiredringervolume_pref">Wired headset ringer volume</string>
+    <string name="title_wiredringervolume_pref">Wired ringer volume</string>
+    <string name="summary_wiredringervolume_pref">
+        Set the ringer volume when using a wired (3.5mm) headset
+    </string>
+
+    <string name="media_title">Media volume</string>
+    <string name="in_call_title">In-call volume</string>
+    <string name="ringer_title">Ringer volume</string>
+    <string name="notif_title">Notification volume</string>
+    
+    <string name="pref_media_speaker">speakervolume</string>
+    <string name="pref_media_wired">wiredvolume</string>
+    <string name="pref_media_bluetooth">a2dpvolume</string>
+    
+    <string name="pref_call_normal">normalcallvolume</string>
+    <string name="pref_call_wired">wiredcallvolume</string>
+    <string name="pref_call_bluetooth">btcallvolume</string>
+    
+    <string name="pref_ringer_normal">default_ringer_volume</string>
+    <string name="pref_ringer_wired">wiredringervolume</string>
+    
+    <string name="pref_notif_normal">normalnotifvolume</string>
+    <string name="pref_notif_wired">wirednotifvolume</string>
+    <string name="pref_notif_bluetooth">btnotifvolume</string>
+    <string name="pref_has_headset">has_headset</string>
+    <string name="pref_has_bt_headset">has_bluetooth_headset</string>
+
+    <string name="dialog_title_normalcallvolume_pref">Normal call volume</string>
+    <string name="dialog_msg_normalcallvolume_pref">Normal call volume</string>
+    <string name="title_normalcallvolume_pref">Normal call volume</string>
+    <string name="summary_normalcallvolume_pref">
+        Call volume when no headsets are connected
+    </string>
+    <string name="dialog_title_wiredcallvolume_pref">Wired headset volume</string>
+    <string name="dialog_msg_wiredcallvolume_pref">Wired headset call volume</string>
+    <string name="title_wiredcallvolume_pref">Wired call volume</string>
+    <string name="summary_wiredcallvolume_pref">
+        Call volume when a wired (3.5mm) headset is connected
+    </string>
+    <string name="dialog_title_btcallvolume_pref">Bluetooth headset volume</string>
+    <string name="dialog_msg_btcallvolume_pref">Bluetooth headset call volume</string>
+    <string name="title_btcallvolume_pref">Bluetooth call volume</string>
+    <string name="summary_btcallvolume_pref">
+        Call volume when a bluetooth headset is connected
+    </string>
+    
+    <string name="dialog_title_normalnotifvolume_pref">Normal notification volume</string>
+    <string name="dialog_msg_normalnotifvolume_pref">Normal notification volume</string>
+    <string name="title_normalnotifvolume_pref">Normal notification volume</string>
+    <string name="summary_normalnotifvolume_pref">
+        Notification volume when no headsets are connected
+    </string>
+    <string name="dialog_title_wirednotifvolume_pref">Wired headset volume</string>
+    <string name="dialog_msg_wirednotifvolume_pref">Wired headset call volume</string>
+    <string name="title_wirednotifvolume_pref">Wired headset volume</string>
+    <string name="summary_wirednotifvolume_pref">
+        Notification volume when a wired (3.5mm) headset is connected
+    </string>
+    <string name="dialog_title_btnotifvolume_pref">Bluetooth headset volume</string>
+    <string name="dialog_msg_btnotifvolume_pref">Bluetooth headset call volume</string>
+    <string name="title_btnotifvolume_pref">Bluetooth headset volume</string>
+    <string name="summary_btnotifvolume_pref">
+        Notification volume when a bluetooth headset is connected
     </string>
 </resources>

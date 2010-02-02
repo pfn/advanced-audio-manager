@@ -1,6 +1,7 @@
 package com.hanhuy.android.a2dp.volume;
 
 import android.content.BroadcastReceiver;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -16,8 +17,6 @@ public class BluetoothHeadsetBroadcastReceiver extends BroadcastReceiver {
 
     final static String TAG = "BluetoothHeadsetBroadcastReceiver";
 
-    private final static String RINGER_VOLUME_KEY = "speaker_ringer_volume";
- 
     // from android/bluetooth/BluetoothHeadset.java
     private final static int STATE_CONNECTED = 2;
     private final static int STATE_CONNECTING = 1;
@@ -37,20 +36,15 @@ public class BluetoothHeadsetBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context c, Intent i) {
         SharedPreferences prefs =
             PreferenceManager.getDefaultSharedPreferences(c);
-        if (!prefs.getBoolean(
-                c.getString(R.string.key_silence_ringer_flag), false)) {
-            return;
-        }
         SharedPreferences.Editor editor = prefs.edit();
+        AudioManager am = (AudioManager) c.getSystemService(
+                Context.AUDIO_SERVICE);
 
         boolean showUI = prefs.getBoolean(
                 c.getString(R.string.key_show_ui_flag), false);
 
-        AudioManager am = (AudioManager) c.getSystemService(
-                Context.AUDIO_SERVICE);
         Bundle extras = i.getExtras();
         int state, oldState;
-        int _volume, volume;
         if (extras.keySet().contains(EXTRA_STATE)) {
             state = extras.getInt(EXTRA_STATE);
             oldState = extras.getInt(EXTRA_PREVIOUS_STATE);
@@ -60,23 +54,79 @@ public class BluetoothHeadsetBroadcastReceiver extends BroadcastReceiver {
         }
         switch (state) {
         case STATE_CONNECTED:
-            _volume = am.getStreamVolume(AudioManager.STREAM_RING);
-            editor.putInt(RINGER_VOLUME_KEY, _volume);
-            editor.commit();
-
-            am.setStreamVolume(AudioManager.STREAM_RING,
-                    0, showUI ? AudioManager.FLAG_SHOW_UI : 0);
+            editor.putBoolean(
+                    c.getString(R.string.pref_has_bt_headset), true);
+            toggleRingerVolume(false, c, prefs, editor, am, showUI);
+            toggleCallVolume(true, c, prefs, editor, am, showUI);
             break;
         case STATE_DISCONNECTED:
             if (oldState == STATE_CONNECTING) // failed connection, don't flip
                 break;
-            volume = prefs.getInt(RINGER_VOLUME_KEY, -1);
+            editor.putBoolean(
+                    c.getString(R.string.pref_has_bt_headset), false);
+            toggleRingerVolume(true, c, prefs, editor, am, showUI);
+            toggleCallVolume(false, c, prefs, editor, am, showUI);
+            break;
+        }
+    }
+    private static void toggleRingerVolume(boolean on, Context c,
+            SharedPreferences prefs, SharedPreferences.Editor editor,
+            AudioManager am, boolean showUI) {
+        if (!prefs.getBoolean(
+                c.getString(R.string.key_silence_ringer_flag), false)) {
+            return;
+        }
+        int stream = AudioManager.STREAM_RING;
+        int _volume, volume;
+
+        if (on) {
+            volume = prefs.getInt(c.getString(R.string.pref_ringer_normal), -1);
 
             if (volume != -1) {
-                am.setStreamVolume(AudioManager.STREAM_RING,
+                am.setStreamVolume(stream,
                         volume, showUI ? AudioManager.FLAG_SHOW_UI : 0);
             }
-            break;
+        } else {
+            _volume = am.getStreamVolume(stream);
+            editor.putInt(c.getString(R.string.pref_ringer_normal), _volume);
+            editor.commit();
+
+            am.setStreamVolume(stream,
+                    0, showUI ? AudioManager.FLAG_SHOW_UI : 0);
+        }
+    }
+    private static void toggleCallVolume(boolean on, Context c,
+            SharedPreferences prefs, SharedPreferences.Editor editor,
+            AudioManager am, boolean showUI) {
+        int stream = AudioManager.STREAM_VOICE_CALL;
+        boolean hasHeadset = prefs.getBoolean(
+                c.getString(R.string.pref_has_headset), false);
+        String key = hasHeadset ? c.getString(R.string.pref_call_wired) :
+            c.getString(R.string.pref_call_normal);
+        int volume, _volume;
+        if (on) {
+            volume = prefs.getInt(
+                    c.getString(R.string.pref_call_bluetooth), -1);
+            _volume = am.getStreamVolume(stream);
+
+            editor.putInt(key, _volume);
+            editor.commit();
+
+            if (volume != -1) {
+                am.setStreamVolume(stream,
+                        volume, showUI ? AudioManager.FLAG_SHOW_UI : 0);
+            }
+        } else {
+            volume = prefs.getInt(key, -1);
+            _volume = am.getStreamVolume(stream);
+
+            editor.putInt(c.getString(R.string.pref_call_bluetooth), _volume);
+            editor.commit();
+
+            if (volume != -1) {
+                am.setStreamVolume(stream,
+                        volume, showUI ? AudioManager.FLAG_SHOW_UI : 0);
+            }
         }
     }
 }

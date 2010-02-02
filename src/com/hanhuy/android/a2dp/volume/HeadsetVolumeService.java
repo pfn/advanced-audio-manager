@@ -50,7 +50,7 @@ public class HeadsetVolumeService extends Service {
             Method m = null;
             try {
                 m = BroadcastReceiver.class.getDeclaredMethod(
-                        "isInitialStickyBroadcast", (Class<?>) null);
+                "isInitialStickyBroadcast"); //, (Class[]) null);
             } catch (SecurityException e) {
             } catch (NoSuchMethodException e) {
                 Log.i(TAG, "no BroadcastReceiver.isInitialStickyBroadcast()");
@@ -64,8 +64,7 @@ public class HeadsetVolumeService extends Service {
             boolean r = false;
             if (isInitialStickyBroadcast != null) {
                 try {
-                    r = (Boolean) isInitialStickyBroadcast.invoke(
-                            this, (Object) null);
+                    r = (Boolean) isInitialStickyBroadcast.invoke(this);
                 } catch (IllegalArgumentException e) {
                     Log.e(TAG, "isInitialStickyBroadcast", e);
                 } catch (IllegalAccessException e) {
@@ -81,51 +80,137 @@ public class HeadsetVolumeService extends Service {
         public void onReceive(Context context, Intent intent) {
             SharedPreferences prefs =
                 PreferenceManager.getDefaultSharedPreferences(context);
+            boolean alreadyHasHeadset = prefs.getBoolean(
+                    context.getString(R.string.pref_has_headset), false);
+            boolean hasBtHeadset = prefs.getBoolean(
+                    context.getString(R.string.pref_has_bt_headset), false);
+            SharedPreferences.Editor editor = prefs.edit();
+            int state = intent.getIntExtra("state", -1);
+            
+            AudioManager am = (AudioManager) context.getSystemService(
+                    HeadsetVolumeService.AUDIO_SERVICE);
             boolean showUI = prefs.getBoolean(
                     context.getString(R.string.key_show_ui_flag), false) &&
                     !_isInitialStickyBroadcast();
-            boolean alreadyHasHeadset = prefs.getBoolean(
-                    VolumePreference.HAS_HEADSET, false);
-            SharedPreferences.Editor editor = prefs.edit();
-            AudioManager am = (AudioManager) context.getSystemService(
-                    HeadsetVolumeService.AUDIO_SERVICE);
-            int state   = intent.getIntExtra("state", -1);
+            
             if (state == 0) {
+                editor.putBoolean(
+                        context.getString(R.string.pref_has_headset), false);
                 // don't set volume, will screw up speaker and headset volumes
                 if (!alreadyHasHeadset)
                     return;
-                editor.putBoolean(VolumePreference.HAS_HEADSET, false);
-                if (!am.isBluetoothA2dpOn()) {
-                    int _volume = am.getStreamVolume(AudioManager.STREAM_MUSIC);
-                    editor.putInt(VolumePreference.HEADSET_VOLUME_KEY, _volume);
-                    int volume = prefs.getInt(
-                            VolumePreference.SPEAKER_VOLUME_KEY, -1);
-                    if (volume != -1) {
-                        if (!prefs.getBoolean(context.getString(
-                                R.string.key_unmute_speaker_flag), false)) {
-                            volume = 0;
-                        }
-                        am.setStreamVolume(AudioManager.STREAM_MUSIC,
-                                volume, showUI ? AudioManager.FLAG_SHOW_UI : 0);
-                    }
-                }
+                toggleMediaVolume(false, context, prefs, editor, am, showUI);
+                toggleRingerVolume(false, context, prefs, editor, am,
+                        hasBtHeadset, showUI);
+                toggleCallVolume(false, context, prefs, editor, am,
+                        hasBtHeadset, showUI);
             }
             if (state > 0) { // assume that anything >0 is a media headset (1.5)
+                editor.putBoolean(
+                        context.getString(R.string.pref_has_headset), true);
                 if (alreadyHasHeadset)
                     return;
-                editor.putBoolean(VolumePreference.HAS_HEADSET, true);
+                toggleMediaVolume(true, context, prefs, editor, am, showUI);
+                toggleRingerVolume(true, context, prefs, editor, am,
+                        hasBtHeadset, showUI);
+                toggleCallVolume(true, context, prefs, editor, am,
+                        hasBtHeadset, showUI);
+            }
+            editor.commit();
+        }
+        private void toggleMediaVolume(boolean on, Context context,
+                SharedPreferences prefs, SharedPreferences.Editor editor,
+                AudioManager am, boolean showUI) {
+            int stream = AudioManager.STREAM_MUSIC;
+            if (on) {
                 if (!am.isBluetoothA2dpOn()) {
-                    int _volume = am.getStreamVolume(AudioManager.STREAM_MUSIC);
-                    editor.putInt(VolumePreference.SPEAKER_VOLUME_KEY, _volume);
+                    int _volume = am.getStreamVolume(stream);
+                    editor.putInt(context.getString(
+                            R.string.pref_media_speaker), _volume);
                     int volume = prefs.getInt(
-                            VolumePreference.HEADSET_VOLUME_KEY, -1);
+                            context.getString(R.string.pref_media_wired), -1);
                     if (volume != -1) {
-                        am.setStreamVolume(AudioManager.STREAM_MUSIC,
+                        am.setStreamVolume(stream,
+                                volume, showUI ? AudioManager.FLAG_SHOW_UI : 0);
+                    }
+                }
+            } else {
+                if (!am.isBluetoothA2dpOn()) {
+                    int _volume = am.getStreamVolume(stream);
+                    editor.putInt(context.getString(R.string.pref_media_wired),
+                            _volume);
+                    int volume = prefs.getInt(
+                            context.getString(R.string.pref_media_speaker), -1);
+                    if (!prefs.getBoolean(context.getString(
+                            R.string.key_unmute_speaker_flag), false)) {
+                        volume = 0;
+                    }
+                    if (volume != -1) {
+                        am.setStreamVolume(stream,
                                 volume, showUI ? AudioManager.FLAG_SHOW_UI : 0);
                     }
                 }
             }
-            editor.commit();
+        }
+        private void toggleCallVolume(boolean on, Context context,
+                SharedPreferences prefs, SharedPreferences.Editor editor,
+                AudioManager am, boolean hasBtHeadset, boolean showUI) {
+            int stream = AudioManager.STREAM_VOICE_CALL;
+            if (on) {
+                if (!hasBtHeadset) {
+                    int _volume = am.getStreamVolume(stream);
+                    editor.putInt(context.getString(
+                            R.string.pref_call_normal), _volume);
+                    int volume = prefs.getInt(
+                            context.getString(R.string.pref_call_wired), -1);
+                    if (volume != -1) {
+                        am.setStreamVolume(stream,
+                                volume, showUI ? AudioManager.FLAG_SHOW_UI : 0);
+                    }
+                }
+            } else {
+                if (!hasBtHeadset) {
+                    int _volume = am.getStreamVolume(stream);
+                    editor.putInt(context.getString(R.string.pref_call_wired),
+                            _volume);
+                    int volume = prefs.getInt(
+                            context.getString(R.string.pref_call_normal), -1);
+                    if (volume != -1) {
+                        am.setStreamVolume(stream,
+                                volume, showUI ? AudioManager.FLAG_SHOW_UI : 0);
+                    }
+                }
+            }
+        }
+        private void toggleRingerVolume(boolean on, Context context,
+                SharedPreferences prefs, SharedPreferences.Editor editor,
+                AudioManager am, boolean hasBtHeadset, boolean showUI) {
+            int stream = AudioManager.STREAM_RING;
+            if (on) {
+                if (!hasBtHeadset) {
+                    int _volume = am.getStreamVolume(stream);
+                    editor.putInt(context.getString(
+                            R.string.pref_ringer_normal), _volume);
+                    int volume = prefs.getInt(
+                            context.getString(R.string.pref_ringer_wired), -1);
+                    if (volume != -1) {
+                        am.setStreamVolume(stream,
+                                volume, showUI ? AudioManager.FLAG_SHOW_UI : 0);
+                    }
+                }
+            } else {
+                if (!hasBtHeadset) {
+                    int _volume = am.getStreamVolume(stream);
+                    editor.putInt(context.getString(R.string.pref_ringer_wired),
+                            _volume);
+                    int volume = prefs.getInt(
+                            context.getString(R.string.pref_ringer_normal), -1);
+                    if (volume != -1) {
+                        am.setStreamVolume(stream,
+                                volume, showUI ? AudioManager.FLAG_SHOW_UI : 0);
+                    }
+                }
+            }
         }
     }
 }
