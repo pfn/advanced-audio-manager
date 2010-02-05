@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">A2DP Volume Manager</string>
+    <string name="app_name">Advanced Audio Manager</string>
 
     <string name="key_unmute_speaker_flag">mute_speaker_flag</string>
     <string name="title_unmute_speaker_flag">Enable speaker setting</string>
