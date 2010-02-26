@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import android.app.Service;
 
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -14,6 +15,7 @@ import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.util.Log;
 
 public class HeadsetVolumeService extends Service {
@@ -156,6 +158,7 @@ public class HeadsetVolumeService extends Service {
                 SharedPreferences prefs, SharedPreferences.Editor editor,
                 AudioManager am, boolean hasBtHeadset, boolean showUI) {
             int stream = AudioManager.STREAM_VOICE_CALL;
+            ContentResolver cr = context.getContentResolver();
             if (on) {
                 if (!hasBtHeadset) {
                     int _volume = am.getStreamVolume(stream);
@@ -166,6 +169,8 @@ public class HeadsetVolumeService extends Service {
                     if (volume != -1) {
                         am.setStreamVolume(stream,
                                 volume, showUI ? AudioManager.FLAG_SHOW_UI : 0);
+                        Settings.System.putInt(cr,
+                                Settings.System.VOLUME_VOICE, volume);
                     }
                 }
             } else {
@@ -178,6 +183,8 @@ public class HeadsetVolumeService extends Service {
                     if (volume != -1) {
                         am.setStreamVolume(stream,
                                 volume, showUI ? AudioManager.FLAG_SHOW_UI : 0);
+                        Settings.System.putInt(cr,
+                                Settings.System.VOLUME_VOICE, volume);
                     }
                 }
             }

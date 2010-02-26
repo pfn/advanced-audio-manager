@@ -2,12 +2,14 @@ package com.hanhuy.android.a2dp.volume;
 
 import android.content.BroadcastReceiver;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 
 public class BluetoothHeadsetBroadcastReceiver extends BroadcastReceiver {
     final static String ACTION_HEADSET_STATE_CHANGED =
@@ -104,6 +106,7 @@ public class BluetoothHeadsetBroadcastReceiver extends BroadcastReceiver {
         String key = hasHeadset ? c.getString(R.string.pref_call_wired) :
             c.getString(R.string.pref_call_normal);
         int volume, _volume;
+        ContentResolver cr = c.getContentResolver();
         if (on) {
             volume = prefs.getInt(
                     c.getString(R.string.pref_call_bluetooth), -1);
@@ -115,6 +118,8 @@ public class BluetoothHeadsetBroadcastReceiver extends BroadcastReceiver {
             if (volume != -1) {
                 am.setStreamVolume(stream,
                         volume, showUI ? AudioManager.FLAG_SHOW_UI : 0);
+                Settings.System.putInt(cr,
+                        Settings.System.VOLUME_VOICE, volume);
             }
         } else {
             volume = prefs.getInt(key, -1);
@@ -126,6 +131,8 @@ public class BluetoothHeadsetBroadcastReceiver extends BroadcastReceiver {
             if (volume != -1) {
                 am.setStreamVolume(stream,
                         volume, showUI ? AudioManager.FLAG_SHOW_UI : 0);
+                Settings.System.putInt(cr,
+                        Settings.System.VOLUME_VOICE, volume);
             }
         }
     }
