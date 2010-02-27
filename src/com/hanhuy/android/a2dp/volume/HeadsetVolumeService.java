@@ -201,8 +201,8 @@ public class HeadsetVolumeService extends Service {
                     int volume = prefs.getInt(
                             context.getString(R.string.pref_ringer_wired), -1);
                     if (volume != -1) {
-                        am.setStreamVolume(stream,
-                                volume, showUI ? AudioManager.FLAG_SHOW_UI : 0);
+                        BroadcastUtil.changeVolume(context,
+                                am, showUI, stream, volume);
                     }
                 }
             } else {
@@ -213,8 +213,8 @@ public class HeadsetVolumeService extends Service {
                     int volume = prefs.getInt(
                             context.getString(R.string.pref_ringer_normal), -1);
                     if (volume != -1) {
-                        am.setStreamVolume(stream,
-                                volume, showUI ? AudioManager.FLAG_SHOW_UI : 0);
+                        BroadcastUtil.changeVolume(context,
+                                am, showUI, stream, volume);
                     }
                 }
             }

@@ -85,16 +85,14 @@ public class BluetoothHeadsetBroadcastReceiver extends BroadcastReceiver {
             volume = prefs.getInt(c.getString(R.string.pref_ringer_normal), -1);
 
             if (volume != -1) {
-                am.setStreamVolume(stream,
-                        volume, showUI ? AudioManager.FLAG_SHOW_UI : 0);
+                BroadcastUtil.changeVolume(c, am, showUI, stream, volume);
             }
         } else {
             _volume = am.getStreamVolume(stream);
             editor.putInt(c.getString(R.string.pref_ringer_normal), _volume);
             editor.commit();
 
-            am.setStreamVolume(stream,
-                    0, showUI ? AudioManager.FLAG_SHOW_UI : 0);
+            BroadcastUtil.changeVolume(c, am, showUI, stream, 0);
         }
     }
     private static void toggleCallVolume(boolean on, Context c,
