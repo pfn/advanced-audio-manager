@@ -159,8 +159,8 @@ public class HeadsetVolumeService extends Service {
                 AudioManager am, boolean hasBtHeadset, boolean showUI) {
             int stream = AudioManager.STREAM_VOICE_CALL;
             ContentResolver cr = context.getContentResolver();
-            if (on) {
-                if (!hasBtHeadset) {
+            if (!hasBtHeadset) {
+                if (on) {
                     int _volume = am.getStreamVolume(stream);
                     editor.putInt(context.getString(
                             R.string.pref_call_normal), _volume);
@@ -172,9 +172,7 @@ public class HeadsetVolumeService extends Service {
                         Settings.System.putInt(cr,
                                 Settings.System.VOLUME_VOICE, volume);
                     }
-                }
-            } else {
-                if (!hasBtHeadset) {
+                } else {
                     int _volume = am.getStreamVolume(stream);
                     editor.putInt(context.getString(R.string.pref_call_wired),
                             _volume);
@@ -193,8 +191,9 @@ public class HeadsetVolumeService extends Service {
                 SharedPreferences prefs, SharedPreferences.Editor editor,
                 AudioManager am, boolean hasBtHeadset, boolean showUI) {
             int stream = AudioManager.STREAM_RING;
-            if (on) {
-                if (!hasBtHeadset) {
+            if (!hasBtHeadset || !prefs.getBoolean(context.getString(
+                    R.string.key_silence_ringer_flag), false)) {
+                if (on) {
                     int _volume = am.getStreamVolume(stream);
                     editor.putInt(context.getString(
                             R.string.pref_ringer_normal), _volume);
@@ -204,9 +203,7 @@ public class HeadsetVolumeService extends Service {
                         BroadcastUtil.changeVolume(context,
                                 am, showUI, stream, volume);
                     }
-                }
-            } else {
-                if (!hasBtHeadset) {
+                } else {
                     int _volume = am.getStreamVolume(stream);
                     editor.putInt(context.getString(R.string.pref_ringer_wired),
                             _volume);
